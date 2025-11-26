@@ -581,7 +581,7 @@ class usersController {
             }
             const sheet = workbook.Sheets[sheetName];
             let rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
+            console.log("check row", rows)
             
 
             // ===== 3. Chuẩn hóa dữ liệu =====
@@ -592,7 +592,7 @@ class usersController {
             email: (r.email ?? r['email'] ?? '').toString().trim().toLowerCase(),
             password: (r.password ?? r['password'] ?? '').toString(),
             phone: (r.phone ?? r['phone'] ?? '').toString().trim(),
-            role: (r.role ?? r['role'] ?? 'student').toString().trim().toLowerCase(),
+            role: r.role === 'Thủ thư' ? 'admin' : r.role === "Sinh viên" ? 'student' : 'teacher',
             class:  (r.class ?? r['class'] ?? '').toString().trim().toLowerCase(),
             avatar: (r.avatar ?? r['avatar'] ?? 'https://cdn-icons-png.flaticon.com/512/6596/6596121.png')
                 .toString()

@@ -43,7 +43,7 @@ class CartController {
         await cart.save();
 
         return new OK({
-        message: 'Tạo phiếu thuê thành công',
+        message: 'Tạo phiếu mượn thành công',
         metadata: cart,
         }).send(res);
     } else {
@@ -52,6 +52,7 @@ class CartController {
         user:user,
         product: [{ productId: product, quantity, startDate, endDate }],
         totalPrice: findProduct.price * quantity,
+        status: 'approved',
         fullName: req.user.fullName || '',
         phone: req.user.phone || '',
         address: req.user.address || '',
@@ -255,6 +256,98 @@ class CartController {
             metadata: cart,
         }).send(res);
     }
+    async getBorrowingBooks(req, res, next) {
+        try {
+            const now = new Date();
+            const carts = await modelCart.find().lean();
+            if (!carts || carts.length === 0) {
+            return new OK({
+                message: 'Hiện không có sách nào đang được mượn',
+                metadata: [],
+            }).send(res);
+            }
+
+            const borrowingItems = [];
+
+            for (const cart of carts) {
+            if (!Array.isArray(cart.product)) continue;
+            for (const item of cart.product) {
+                const start = item.startDate ? new Date(item.startDate) : null;
+                const end   = item.endDate   ? new Date(item.endDate)   : null;
+                borrowingItems.push({
+                cartId:   cart._id,
+                userId:   cart.userId,
+                fullName: cart.fullName || cart.user?.fullName || 'N/A',
+                phone:    cart.phone   || cart.user?.phone    || '',
+                address:  cart.address || '',
+
+                status:    cart.status,
+                createdAt: cart.createdAt,
+
+                bookId:    item.productId,     
+                quantity:  item.quantity,
+                startDate: item.startDate,
+                endDate:   item.endDate,
+                });
+                // }
+            }
+            }
+
+            if (borrowingItems.length === 0) {
+            return new OK({
+                message: 'Hiện không có sách nào đang được mượn',
+                metadata: [],
+            }).send(res);
+            }
+            const bookIds = [...new Set(borrowingItems.map(i => i.bookId.toString()))];
+
+            const books = await modelProduct.find({
+            _id: { $in: bookIds },
+            }).lean();
+
+            const bookMap = books.reduce((acc, book) => {
+            acc[book._id.toString()] = book;
+            return acc;
+            }, {});
+
+            const result = borrowingItems.map(item => {
+            const book  = bookMap[item.bookId.toString()] || null;
+            const qty   = Number(item.quantity) || 1;
+            const price = Number(book?.price)   || 0;
+
+            return {
+                cartId:   item.cartId,
+                userId:   item.userId,
+                fullName: item.fullName,
+                phone:    item.phone,
+                address:  item.address,
+
+                status:    item.status,
+                createdAt: item.createdAt,
+
+                bookId:    item.bookId,
+                bookName:  book?.nameProduct || 'Sách không tồn tại',
+                image:     book?.images   || null,
+                book,
+
+                quantity:  qty,
+                startDate: item.startDate,
+                endDate:   item.endDate,
+
+                totalPrice: qty * price,
+            };
+            });
+
+            return new OK({
+            message: 'Lấy danh sách sách đang được mượn thành công',
+            metadata: result,
+            }).send(res);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
 
 }
 

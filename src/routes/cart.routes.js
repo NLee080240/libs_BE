@@ -13,5 +13,6 @@ router.post('/delete-item', authUser, asyncHandler(cartController.deleteItem));
 router.post('/update-info', authUser, asyncHandler(cartController.updateInfoCart));
 router.post('/update-info-by-admin', authUser, asyncHandler(cartController.updateInfoCartByAdmin));
 router.patch('/extend', authUser, asyncHandler(cartController.extendBorrow));
+router.get('/borrowing-books', authUser, asyncHandler(cartController.getBorrowingBooks));
 
 module.exports = router;
