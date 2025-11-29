@@ -592,7 +592,7 @@ class usersController {
             email: (r.email ?? r['email'] ?? '').toString().trim().toLowerCase(),
             password: (r.password ?? r['password'] ?? '').toString(),
             phone: (r.phone ?? r['phone'] ?? '').toString().trim(),
-            role: r.role === 'Thủ thư' ? 'admin' : r.role === "Sinh viên" ? 'student' : 'teacher',
+            role: r.role === 'Thủ thư' ? 'admin' : r.role,
             class:  (r.class ?? r['class'] ?? '').toString().trim().toLowerCase(),
             avatar: (r.avatar ?? r['avatar'] ?? 'https://cdn-icons-png.flaticon.com/512/6596/6596121.png')
                 .toString()
@@ -614,8 +614,6 @@ class usersController {
             if (!r.phone) errs.push('phone trống');
             if (!r.address) errs.push('address trống');
             if (r.email && !emailRegex.test(r.email)) errs.push('email không hợp lệ');
-            // if (!['admin', 'user'].includes(r.role)) r.role = 'user';
-
             if (errs.length) invalidRows.push({ row: r.rowNum, email: r.email, reasons: errs });
             else candidates.push(r);
             }
@@ -651,7 +649,7 @@ class usersController {
                 password: passwordHash,
                 phone: c.phone,
                 class:c.class,
-                role: c.role === 'Thủ thư' ? 'admin' : c.role === "Sinh viên" ? 'student' : 'teacher',
+                role: c.role === 'Thủ thư' ? 'admin' : c.role === "Học sinh" ? 'student' : 'teacher',
                 avatar: c.avatar || 'https://cdn-icons-png.flaticon.com/512/6596/6596121.png',
                 address: c.address,
             });
