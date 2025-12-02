@@ -12,7 +12,7 @@ class CartController {
     // Lấy phần tử đầu tiên trong items
     const item = Array.isArray(req.body.items) ? req.body.items[0] : req.body;
     const { product, startDate, endDate, quantity } = item;
-
+// oke  console.log("Kiểm tra req.body", req.body);
     // Validate dữ liệu
     if (!product || !quantity || quantity <= 0) {
         console.log("Kiểm tra quantity", quantity);
